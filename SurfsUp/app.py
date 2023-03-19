@@ -3,11 +3,10 @@ import pandas as pd
 app = Flask(__name__)
 
 pageList = ["/api/v1.0/precipitation","/api/v1.0/stations","/api/v1.0/tobs","/api/v1.0/<start>","/api/v1.0/<start>/<end>"]
-
+ly_df = pd.read_csv("last_year.csv")
 
 
 def last_year_to_obj():
-    ly_df = pd.read_csv("last_year.csv")
     ly_obj = ly_df.set_index("date")["prcp"].to_dict()
     return ly_obj    
 
@@ -27,6 +26,8 @@ def nothome():
 
 @app.route("/api/v1.0/stations")
 def somthing():
+    stations = ly_df["station"].unique()
+    return jsonify(stations)
     # Return a JSON list of stations from the dataset.
     pass
 
@@ -36,7 +37,7 @@ def waitasecond():
     # Return a JSON list of temperature observations for the previous year.
     pass
 
-@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/")
 def noway():
     # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
     pass
