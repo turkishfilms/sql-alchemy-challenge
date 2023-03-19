@@ -30,7 +30,6 @@ base.prepare(autoload_with=engine)
 Station = base.classes.station
 Measurement = base.classes.measurement
 
-
 #-- 
 
 @app.route("/")
@@ -83,16 +82,11 @@ def holup(start,end):
     end_f = end.replace(" ", "").lower()
     from_start_df = df_from_start(start_f)
     to_end_df = from_start_df[from_start_df["date"] <= end_f]
-    
     # create boolean mask for rows to be deleted
     mask = from_start_df['date'] < end_f
-
     # drop rows from DataFrame using the boolean mask
     to_end_df = from_start_df.drop(from_start_df[mask].index, inplace=False)
-    
-    print(to_end_df)
     end_stats = [to_end_df["tobs"].min(),to_end_df["tobs"].max(), to_end_df["tobs"].mean()]
-    print(end_stats)
     # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
     return jsonify(end_stats)
 
