@@ -2,7 +2,6 @@ from flask import Flask, jsonify
 import pandas as pd
 app = Flask(__name__)
 
-pageList = ["/api/v1.0/precipitation","/api/v1.0/stations","/api/v1.0/tobs","/api/v1.0/<start>","/api/v1.0/<start>/<end>"]
 ly_df = pd.read_csv("last_year.csv")
 
 
@@ -16,19 +15,28 @@ def home():
     print("YOLO CHOLO")
     # Start at the homepage.
     # List all the available routes.
-    return jsonify(pageList)
+    return (
+        f"Welcome to the Hawaii API!<br/>"
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/station/<br/>"
+        f"/api/v1.0/tobs/<br/>"
+        f"/api/v1.0/<start>/<br/>"
+        f"/api/v1.0/<start>/<end>/<br/>"
+        )
+        
 
 @app.route("/api/v1.0/precipitation")
 def nothome():
     # Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a dictionary using date as the key and prcp as the value.
+    last_year_prcp =last_year_to_obj()
     # Return the JSON representation of your dictionary.
-    return jsonify(last_year_to_obj())
+    return jsonify(last_year_prcp)
 
 @app.route("/api/v1.0/stations")
 def somthing():
-    stations = ly_df["station"].unique()
-    return jsonify(stations)
     # Return a JSON list of stations from the dataset.
+    return jsonify(list(ly_df["station"].unique()))
     pass
 
 @app.route("/api/v1.0/tobs")
@@ -37,8 +45,8 @@ def waitasecond():
     # Return a JSON list of temperature observations for the previous year.
     pass
 
-@app.route("/api/v1.0/")
-def noway():
+@app.route("/api/v1.0/<start>")
+def noway(start):
     # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
     pass
 
