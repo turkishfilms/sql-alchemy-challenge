@@ -16,7 +16,11 @@ def last_year_to_obj():
     return ly_obj    
 
 def df_from_start(start):
-    vals = session.query(Measurement.tobs).filter(Measurement.date >= start)
+    session = Session(bind = engine)
+    vals = session.query(Measurement).filter(Measurement.date >= start).all()
+    
+    print(vals[0])
+    session.close()
     return pd.DataFrame.from_records([r.__dict__ for r in vals], columns=Measurement.__table__.columns.keys())
 
 # -- SQL STUFF
@@ -25,7 +29,7 @@ base = automap_base()
 base.prepare(autoload_with=engine)
 Station = base.classes.station
 Measurement = base.classes.measurement
-session = Session(bind = engine)
+
 
 #-- 
 
@@ -69,9 +73,9 @@ def waitasecond():
 def noway(start):
     start_f = start.replace(" ", "").lower()
     from_start_df = df_from_start(start_f)
-    start_stats = [from_start_df.min(),from_start_df.max(), from_start_df.mean()]
+    start_stats = [from_start_df["tobs"].min(),from_start_df["tobs"].max(), from_start_df["tobs"].mean()]
     # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
-    jsonify(start_stats)
+    return jsonify(start_stats)
 
 @app.route("/api/v1.0/<start>/<end>")
 def holup(start,end):
@@ -79,9 +83,18 @@ def holup(start,end):
     end_f = end.replace(" ", "").lower()
     from_start_df = df_from_start(start_f)
     to_end_df = from_start_df[from_start_df["date"] <= end_f]
-    end_stats = [to_end_df.min(),to_end_df.max(), to_end_df.mean()]
+    
+    # create boolean mask for rows to be deleted
+    mask = from_start_df['date'] < end_f
+
+    # drop rows from DataFrame using the boolean mask
+    to_end_df = from_start_df.drop(from_start_df[mask].index, inplace=False)
+    
+    print(to_end_df)
+    end_stats = [to_end_df["tobs"].min(),to_end_df["tobs"].max(), to_end_df["tobs"].mean()]
+    print(end_stats)
     # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
-    jsonify(end_stats)
+    return jsonify(end_stats)
 
 
 if(__name__=="__main__"):
