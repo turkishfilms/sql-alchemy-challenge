@@ -95,6 +95,3 @@ if(__name__=="__main__"):
     app.run(debug=True)
 
 
-# Join the station and measurement tables for some of the queries.
-
-# Use the Flask jsonify function to convert your API data to a valid JSON response object.
